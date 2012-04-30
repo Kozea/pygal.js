@@ -6800,7 +6800,9 @@ function getWidthOrHeight( elem, name, extra ) {
 	var val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
 		i = name === "width" ? 1 : 0,
 		len = 4;
-
+	if (val === undefined) {
+		val = name === "width" ? elem.getBBox().width : elem.getBBox().height;
+	}
 	if ( val > 0 ) {
 		if ( extra !== "border" ) {
 			for ( ; i < len; i += 2 ) {
