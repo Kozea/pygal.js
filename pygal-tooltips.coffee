@@ -10,7 +10,7 @@ get_translation = ($elt) ->
 
 tooltip = ($elt) ->
     clearTimeout(tooltip_timeout)
-    $tooltip = $('#tooltip').show()
+    $tooltip = $('#tooltip').css(opacity: 1)
     $text = $tooltip.find('text')
     $label = $tooltip.find('tspan.label')
     $value = $tooltip.find('tspan.value')
@@ -48,7 +48,7 @@ tooltip = ($elt) ->
 
 untooltip = ->
     tooltip_timeout = setTimeout (->
-        $('#tooltip').hide()), 1000
+        $('#tooltip').css(opacity: 0)), 1000
 
 
 $ ->

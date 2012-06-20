@@ -19,7 +19,9 @@
   tooltip = function($elt) {
     var $label, $rect, $text, $tooltip, $value, current_x, current_y, h, w, x, x_elt, xlink, y, y_elt, _ref;
     clearTimeout(tooltip_timeout);
-    $tooltip = $('#tooltip').show();
+    $tooltip = $('#tooltip').css({
+      opacity: 1
+    });
     $text = $tooltip.find('text');
     $label = $tooltip.find('tspan.label');
     $value = $tooltip.find('tspan.value');
@@ -57,7 +59,9 @@
 
   untooltip = function() {
     return tooltip_timeout = setTimeout((function() {
-      return $('#tooltip').hide();
+      return $('#tooltip').css({
+        opacity: 0
+      });
     }), 1000);
   };
 
