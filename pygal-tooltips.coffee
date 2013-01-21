@@ -29,7 +29,9 @@ init = (ctx) ->
         $label.text($elt.siblings('.label').text())
         $value.text($elt.siblings('.value').text())
         xlink = $elt.siblings('.xlink').text() or null
-        $tooltip.find('a').attr('href', xlink)
+        target = $elt.parent().attr('target')
+        if xlink
+            $tooltip.find('a').attr('href', xlink).attr('target', target)
         $text.attr('x', padding)
         $text.attr('y', padding + @config.tooltip_font_size)
         $value.attr('x', padding)
