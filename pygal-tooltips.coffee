@@ -18,7 +18,7 @@ init = (ctx) ->
         $vg('.serie-' + num + ' .reactive', ctx).removeClass('active')
         )
     $vg('.tooltip-trigger', ctx).hover((-> tooltip($vg(@))), (-> untooltip()))
-    
+
     tooltip = ($elt) ->
         clearTimeout(tooltip_timeout)
         $tooltip = $vg('#tooltip', ctx).css(opacity: 1)
@@ -26,8 +26,12 @@ init = (ctx) ->
         $label = $tooltip.find('tspan.label')
         $value = $tooltip.find('tspan.value')
         $rect = $tooltip.find('rect')
-        $label.text($elt.siblings('.label').text())
-        $value.text($elt.siblings('.value').text())
+        if $elt.siblings('.tooltip').size()
+            $label.text($elt.siblings('.tooltip').text())
+            $value.text('')
+        else
+            $label.text($elt.siblings('.label').text())
+            $value.text($elt.siblings('.value').text())
         xlink = $elt.siblings('.xlink').text() or null
         target = $elt.parent().attr('target')
         if xlink
@@ -67,4 +71,5 @@ init = (ctx) ->
     init($vg(ctx))
 
 $vg ->
-    init()
+    $vg('.pygal-chart').each ->
+        init_svg(@)
