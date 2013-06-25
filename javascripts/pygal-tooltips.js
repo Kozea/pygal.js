@@ -100,9 +100,15 @@
   };
 
   $vg(function() {
-    return $vg('.pygal-chart').each(function() {
-      return init_svg(this);
-    });
+    var $charts;
+    $charts = $vg('.pygal-chart');
+    if ($charts.size()) {
+      return $charts.each(function() {
+        return init_svg(this);
+      });
+    } else {
+      return init();
+    }
   });
 
 }).call(this);
