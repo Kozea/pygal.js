@@ -71,5 +71,9 @@ init = (ctx) ->
     init($vg(ctx))
 
 $vg ->
-    $vg('.pygal-chart').each ->
-        init_svg(@)
+    $charts = $vg('.pygal-chart')
+    if $charts.size()
+        $charts.each ->
+            init_svg(@)
+    else
+        init()
