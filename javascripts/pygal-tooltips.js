@@ -39,7 +39,7 @@
     tooltip = function($elt) {
       var $label, $rect, $text, $tooltip, $value, current_x, current_y, h, target, w, x, x_elt, xlink, y, y_elt, _ref;
       clearTimeout(tooltip_timeout);
-      $tooltip = $vg('#tooltip', ctx).css({
+      $tooltip = $vg('#tooltip,.tooltip', ctx).css({
         opacity: 1
       });
       $text = $tooltip.find('text');
