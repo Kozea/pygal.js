@@ -88,7 +88,7 @@
     };
     return untooltip = function() {
       return tooltip_timeout = setTimeout((function() {
-        return $vg('#tooltip', ctx).css({
+        return $vg('#tooltip,.tooltip', ctx).css({
           opacity: 0
         });
       }), 1000);
