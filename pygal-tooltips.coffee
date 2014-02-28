@@ -6,6 +6,7 @@ get_translation = ($elt) ->
     (r_translation.exec($elt.attr('transform')) or []).slice(1)
 
 init = (ctx) ->
+
     $vg('.text-overlay .series', ctx).hide()
     $vg('.reactive', ctx).hover((-> $vg(@).addClass('active')), (-> $vg(@).removeClass('active')))
     $vg('.activate-serie', ctx).hover((->
@@ -21,7 +22,7 @@ init = (ctx) ->
 
     tooltip = ($elt) ->
         clearTimeout(tooltip_timeout)
-        $tooltip = $vg('#tooltip', ctx).css(opacity: 1)
+        $tooltip = $vg('#tooltip,.tooltip', ctx).css(opacity: 1).show()
         $text = $tooltip.find('text')
         $label = $tooltip.find('tspan.label')
         $value = $tooltip.find('tspan.value')
@@ -65,9 +66,12 @@ init = (ctx) ->
 
     untooltip = ->
         tooltip_timeout = setTimeout (->
-            $vg('#tooltip', ctx).css(opacity: 0)), 1000
+            $vg('#tooltip,.tooltip', ctx).hide().css(opacity: 0)), 1000
 
 @init_svg = (ctx) ->
+    if navigator.userAgent.indexOf('Trident') > -1 or navigator.userAgent.indexOf('MSIE') > -1
+        # Don't use links in tooltip as it doesn't work
+        $vg('.tooltip a').children().unwrap()
     init($vg(ctx))
 
 $vg ->

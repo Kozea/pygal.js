@@ -41,7 +41,7 @@
       clearTimeout(tooltip_timeout);
       $tooltip = $vg('#tooltip,.tooltip', ctx).css({
         opacity: 1
-      });
+      }).show();
       $text = $tooltip.find('text');
       $label = $tooltip.find('tspan.label');
       $value = $tooltip.find('tspan.value');
@@ -88,7 +88,7 @@
     };
     return untooltip = function() {
       return tooltip_timeout = setTimeout((function() {
-        return $vg('#tooltip,.tooltip', ctx).css({
+        return $vg('#tooltip,.tooltip', ctx).hide().css({
           opacity: 0
         });
       }), 1000);
@@ -96,6 +96,9 @@
   };
 
   this.init_svg = function(ctx) {
+    if (navigator.userAgent.indexOf('Trident') > -1 || navigator.userAgent.indexOf('MSIE') > -1) {
+      $vg('.tooltip a').children().unwrap();
+    }
     return init($vg(ctx));
   };
 
