@@ -1,6 +1,6 @@
 {
-  "name": "pygal.js",
-  "version": "0.1.0",
+  "name": "pygal",
+  "version": "0.1.1",
   "homepage": "https://github.com/Kozea/pygal.js",
   "authors": [
     "Florian Mounier <florian.mounier@kozea.fr>"
