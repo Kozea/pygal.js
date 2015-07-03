@@ -7,7 +7,7 @@ Javascript modules made for [pygal](http://github.com/Kozea/pygal)
 License
 -------
 
-Copyright © 2012 Kozea
+Copyright © 2015 Florian Mounier Kozea
 LGPLv3:
 
     This program is free software: you can redistribute it and/or modify
