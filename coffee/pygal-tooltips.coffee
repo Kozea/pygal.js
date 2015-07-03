@@ -31,19 +31,26 @@ init = (ctx) ->
     el.addEventListener 'mouseleave', do (el) -> ->
       el.classList.remove 'active'
 
-  for el in $('.active-serie', ctx)
-    el.addEventListener 'mouseenter', do (el) -> ->
-      num = el.id.replace('activate-serie-', '')
+  for el in $('.activate-serie', ctx)
+    num = el.id.replace('activate-serie-', '')
+
+    el.addEventListener 'mouseenter', do (num) -> ->
       for ov in $('.text-overlay .serie-' + num, ctx)
         ov.style.display = ''
       for re in $('.serie-' + num + ' .reactive', ctx)
         re.classList.add 'active'
-    el.addEventListener 'mouseleave', do (el) -> ->
-      num = el.id.replace('activate-serie-', '')
+
+    el.addEventListener 'mouseleave', do (num) -> ->
       for ov in $('.text-overlay .serie-' + num, ctx)
         ov.style.display = 'none'
       for re in $('.serie-' + num + ' .reactive', ctx)
         re.classList.remove 'active'
+
+    el.addEventListener 'click', do (el, num) -> ->
+      rect = $('rect', el).one()
+      rect.style.fill = rect.style.fill is '' and 'transparent' or ''
+      for re in $('.serie-' + num + ' .reactive', ctx)
+        re.style.display = re.style.display is '' and 'none' or ''
 
   for el in $('.tooltip-trigger', ctx)
     el.addEventListener 'mouseenter', do (el) -> ->

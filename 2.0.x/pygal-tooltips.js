@@ -37,7 +37,7 @@
   };
 
   init = function(ctx) {
-    var el, tooltip, untooltip, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
+    var el, num, tooltip, untooltip, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
     _ref = $('.text-overlay .series', ctx);
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       el = _ref[_i];
@@ -57,13 +57,13 @@
         };
       })(el));
     }
-    _ref2 = $('.active-serie', ctx);
+    _ref2 = $('.activate-serie', ctx);
     for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
       el = _ref2[_k];
-      el.addEventListener('mouseenter', (function(el) {
+      num = el.id.replace('activate-serie-', '');
+      el.addEventListener('mouseenter', (function(num) {
         return function() {
-          var num, ov, re, _l, _len3, _len4, _m, _ref3, _ref4, _results;
-          num = el.id.replace('activate-serie-', '');
+          var ov, re, _l, _len3, _len4, _m, _ref3, _ref4, _results;
           _ref3 = $('.text-overlay .serie-' + num, ctx);
           for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
             ov = _ref3[_l];
@@ -77,11 +77,10 @@
           }
           return _results;
         };
-      })(el));
-      el.addEventListener('mouseleave', (function(el) {
+      })(num));
+      el.addEventListener('mouseleave', (function(num) {
         return function() {
-          var num, ov, re, _l, _len3, _len4, _m, _ref3, _ref4, _results;
-          num = el.id.replace('activate-serie-', '');
+          var ov, re, _l, _len3, _len4, _m, _ref3, _ref4, _results;
           _ref3 = $('.text-overlay .serie-' + num, ctx);
           for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
             ov = _ref3[_l];
@@ -95,7 +94,21 @@
           }
           return _results;
         };
-      })(el));
+      })(num));
+      el.addEventListener('click', (function(el, num) {
+        return function() {
+          var re, rect, _l, _len3, _ref3, _results;
+          rect = $('rect', el).one();
+          rect.style.fill = rect.style.fill === '' && 'transparent' || '';
+          _ref3 = $('.serie-' + num + ' .reactive', ctx);
+          _results = [];
+          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+            re = _ref3[_l];
+            _results.push(re.style.display = re.style.display === '' && 'none' || '');
+          }
+          return _results;
+        };
+      })(el, num));
     }
     _ref3 = $('.tooltip-trigger', ctx);
     for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
