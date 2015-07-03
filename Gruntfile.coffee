@@ -12,7 +12,7 @@ module.exports = (grunt) ->
       pygal:
         expand: true
         cwd: version
-        src: '*.js'
+        src: ['*.js', '!*.min.js']
         dest: version
         ext: '.min.js'
 
