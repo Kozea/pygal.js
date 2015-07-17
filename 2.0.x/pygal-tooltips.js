@@ -39,7 +39,8 @@
   };
 
   init = function(ctx) {
-    var el, num, tooltip, untooltip, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
+    var el, num, tooltip, tooltip_el, untooltip, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
+    tooltip_el = null;
     _ref = $('.text-overlay .series', ctx);
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       el = _ref[_i];
@@ -117,13 +118,24 @@
       el = _ref3[_l];
       el.addEventListener('mouseenter', (function(el) {
         return function() {
-          return tooltip(el);
+          return tooltip_el = tooltip(el);
         };
       })(el));
     }
+    $('.graph').one().addEventListener('mousemove', function(el) {
+      if (!tooltip_el) {
+        return;
+      }
+      if (!matches(el.target, '.background')) {
+        return;
+      }
+      tooltip_el = null;
+      return untooltip();
+    });
     tooltip = function(el) {
       var baseline, cls, current_x, current_y, dy, h, key, keys, label, legend, name, parent, rect, serie_index, text, traversal, tspan, tspans, tt, value, value_index, w, x, x_elt, x_label, y, y_elt, _len4, _len5, _m, _n, _ref4, _ref5, _ref6, _ref7;
       clearTimeout(tooltip_timeout);
+      document.createElementNS(svg, 'tooltip');
       tt = $('#tooltip,.tooltip', ctx).one();
       tt.style.opacity = 1;
       tt.style.display = '';
@@ -217,7 +229,8 @@
       if (current_x === x && current_y === y) {
         return;
       }
-      return tt.setAttribute('transform', "translate(" + x + " " + y + ")");
+      tt.setAttribute('transform', "translate(" + x + " " + y + ")");
+      return tt;
     };
     return untooltip = function() {
       return tooltip_timeout = setTimeout(function() {

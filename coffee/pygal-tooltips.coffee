@@ -24,6 +24,8 @@ get_translation = (el) ->
   (r_translation.exec(el.getAttribute('transform')) or []).slice(1)
 
 init = (ctx) ->
+  tooltip_el = null
+
   for el in $('.text-overlay .series', ctx)
     el.style.display = 'none'
 
@@ -56,12 +58,18 @@ init = (ctx) ->
 
   for el in $('.tooltip-trigger', ctx)
     el.addEventListener 'mouseenter', do (el) -> ->
-      tooltip(el)
-    # el.addEventListener 'mouseleave', do (el) -> ->
-      # untooltip(el)
+      tooltip_el = tooltip(el)
+
+  $('.graph').one().addEventListener 'mousemove', (el) ->
+    return unless tooltip_el
+    return unless matches el.target, '.background'
+    tooltip_el = null
+    untooltip()
 
   tooltip = (el) ->
     clearTimeout(tooltip_timeout)
+    document.createElementNS svg, 'tooltip'
+
     tt = $('#tooltip,.tooltip', ctx).one()
     tt.style.opacity = 1
     tt.style.display = ''
@@ -149,20 +157,6 @@ init = (ctx) ->
       tspans.x_label.setAttribute 'dx',
        w - tspans.x_label.getBBox().width - 2 * padding
 
-    # xlink = sibl(el, '.xlink').one().textContent or null
-    # target = el.parentElement.getAttribute('target')
-    # if xlink
-    #   for a in $(tt, 'a')
-    #     a.setAttribute 'href', xlink
-    #     a.setAttribute 'target', target
-
-
-    # text.setAttribute('x', padding)
-    # text.setAttribute('y', padding + @config.tooltip_font_size)
-    # value.setAttribute('x', padding)
-    # value.setAttribute('dy',
-    #   if label.textContent then @config.tooltip_font_size + padding else 0)
-
     x_elt = sibl(el, '.x').one()
     y_elt = sibl(el, '.y').one()
 
@@ -181,7 +175,7 @@ init = (ctx) ->
     [current_x, current_y] = get_translation(tt)
     return if current_x == x and current_y == y
     tt.setAttribute 'transform', "translate(#{x} #{y})"
-
+    tt
 
   untooltip = ->
     tooltip_timeout = setTimeout ->
