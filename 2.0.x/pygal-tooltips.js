@@ -1,5 +1,7 @@
 (function() {
-  var $, get_translation, init, init_svg, matches, padding, r_translation, sibl, tooltip_timeout;
+  var $, get_translation, init, init_svg, matches, padding, r_translation, sibl, svg, tooltip_timeout;
+
+  svg = 'http://www.w3.org/2000/svg';
 
   $ = function(sel, ctx) {
     if (ctx == null) {
@@ -17,7 +19,7 @@
     if (match == null) {
       match = null;
     }
-    return Array.prototype.filter.call(el.parentNode.children, function(child) {
+    return Array.prototype.filter.call(el.parentElement.children, function(child) {
       return child !== el && (!match || matches(child, match));
     });
   };
@@ -118,47 +120,85 @@
           return tooltip(el);
         };
       })(el));
-      el.addEventListener('mouseleave', (function(el) {
-        return function() {
-          return untooltip(el);
-        };
-      })(el));
     }
     tooltip = function(el) {
-      var a, current_x, current_y, h, label, rect, target, text, tt, value, w, x, x_elt, xlink, y, y_elt, _len4, _m, _ref4, _ref5;
+      var baseline, cls, current_x, current_y, dy, h, key, keys, label, legend, name, parent, rect, serie_index, text, traversal, tspan, tspans, tt, value, value_index, w, x, x_elt, x_label, y, y_elt, _len4, _len5, _m, _n, _ref4, _ref5, _ref6, _ref7;
       clearTimeout(tooltip_timeout);
       tt = $('#tooltip,.tooltip', ctx).one();
       tt.style.opacity = 1;
       tt.style.display = '';
-      text = $('text', tt).one();
-      label = $('tspan.label', tt).one();
-      value = $('tspan.value', tt).one();
+      text = $('g.text', tt).one();
       rect = $('rect', tt).one();
-      if (sibl(el, '.tooltip').length) {
-        label.textContent = sibl(el, '.tooltip').one().textContent;
-        value.textContent = '';
-      } else {
-        label.textContent = sibl(el, '.label').one().textContent;
-        value.textContent = sibl(el, '.value').one().textContent;
-      }
-      xlink = sibl(el, '.xlink').one().textContent || null;
-      target = el.parentNode.getAttribute('target');
-      if (xlink) {
-        _ref4 = $(tt, 'a');
-        for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
-          a = _ref4[_m];
-          a.setAttribute('href', xlink);
-          a.setAttribute('target', target);
+      text.innerHTML = '';
+      label = sibl(el, '.label').one().textContent;
+      value = sibl(el, '.value').one().textContent;
+      serie_index = null;
+      parent = el;
+      traversal = [];
+      while (parent) {
+        parent = parent.parentElement;
+        traversal.push(parent);
+        if (parent.classList.contains('series')) {
+          break;
         }
       }
-      text.setAttribute('x', padding);
-      text.setAttribute('y', padding + this.config.tooltip_font_size);
-      value.setAttribute('x', padding);
-      value.setAttribute('dy', label.textContent ? this.config.tooltip_font_size + padding : 0);
-      w = text.offsetWidth + 2 * padding;
-      h = text.offsetHeight + 2 * padding;
+      _ref4 = parent.classList;
+      for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
+        cls = _ref4[_m];
+        if (cls.indexOf('serie-') === 0) {
+          serie_index = +cls.replace('serie-', '');
+          break;
+        }
+      }
+      value_index = [].indexOf.call(traversal[traversal.length - 2].children, traversal[traversal.length - 3]);
+      x_label = null;
+      legend = null;
+      if (serie_index !== null) {
+        legend = config.legends[serie_index];
+      }
+      if (value_index !== null) {
+        x_label = (_ref5 = config.x_labels) != null ? _ref5[value_index] : void 0;
+      }
+      dy = 0;
+      keys = [[label, 'label'], [value, 'value']];
+      if (config.tooltip_fancy_mode) {
+        keys.unshift([x_label, 'x_label']);
+        keys.unshift([legend, 'legend']);
+      }
+      tspans = {};
+      for (_n = 0, _len5 = keys.length; _n < _len5; _n++) {
+        _ref6 = keys[_n], key = _ref6[0], name = _ref6[1];
+        if (key) {
+          tspan = document.createElementNS(svg, 'text');
+          tspan.textContent = key;
+          tspan.setAttribute('x', padding);
+          tspan.setAttribute('dy', dy);
+          tspan.classList.add(name);
+          if (name === 'value' && config.tooltip_fancy_mode) {
+            tspan.classList.add('color-' + serie_index);
+          }
+          text.appendChild(tspan);
+          dy += tspan.getBBox().height + padding / 2;
+          baseline = padding;
+          if (tspan.style.dominantBaseline !== void 0) {
+            tspan.style.dominantBaseline = 'text-before-edge';
+          } else {
+            baseline += tspan.getBBox().height * .8;
+          }
+          tspan.setAttribute('y', baseline);
+          tspans[name] = tspan;
+        }
+      }
+      w = text.getBBox().width + 2 * padding;
+      h = text.getBBox().height + 2 * padding;
       rect.setAttribute('width', w);
       rect.setAttribute('height', h);
+      if (tspans.value) {
+        tspans.value.setAttribute('dx', (w - tspans.value.getBBox().width) / 2 - padding);
+      }
+      if (tspans.x_label) {
+        tspans.x_label.setAttribute('dx', w - tspans.x_label.getBBox().width - 2 * padding);
+      }
       x_elt = sibl(el, '.x').one();
       y_elt = sibl(el, '.y').one();
       x = parseInt(x_elt.textContent);
@@ -173,7 +213,7 @@
       } else if (y_elt.classList.contains('top')) {
         y -= h;
       }
-      _ref5 = get_translation(tt), current_x = _ref5[0], current_y = _ref5[1];
+      _ref7 = get_translation(tt), current_x = _ref7[0], current_y = _ref7[1];
       if (current_x === x && current_y === y) {
         return;
       }
