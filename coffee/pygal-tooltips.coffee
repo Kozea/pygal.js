@@ -17,14 +17,17 @@ Array.prototype.one = ->
   this.length > 0 and this[0] or {}
 
 padding = 5
-tooltip_timeout = 0
+tooltip_timeout = null
 r_translation = /translate\((\d+)[ ,]+(\d+)\)/
 
 get_translation = (el) ->
-  (r_translation.exec(el.getAttribute('transform')) or []).slice(1)
+  (r_translation.exec(el.getAttribute('transform')) or []).slice(
+    1).map (x) -> +x
 
 init = (ctx) ->
   tooltip_el = null
+  graph = $('.graph').one()
+  graph_bbox = graph.getBBox()
 
   for el in $('.text-overlay .series', ctx)
     el.style.display = 'none'
@@ -60,17 +63,24 @@ init = (ctx) ->
     el.addEventListener 'mouseenter', do (el) -> ->
       tooltip_el = tooltip(el)
 
-  $('.graph').one().addEventListener 'mousemove', (el) ->
+  document.addEventListener 'mouseleave', ->
     return unless tooltip_el
+    if tooltip_timeout
+      clearTimeout tooltip_timeout
+    untooltip(tooltip_el, 0)
+
+  graph.addEventListener 'mousemove', (el) ->
+    return unless tooltip_el
+    return if tooltip_timeout
     return unless matches el.target, '.background'
-    tooltip_el = null
-    untooltip()
+    untooltip(tooltip_el, 1000)
 
   tooltip = (el) ->
     clearTimeout(tooltip_timeout)
+    tooltip_timeout = null
     document.createElementNS svg, 'tooltip'
 
-    tt = $('#tooltip,.tooltip', ctx).one()
+    tt = $('.tooltip', ctx).one()
     tt.style.opacity = 1
     tt.style.display = ''
 
@@ -172,17 +182,33 @@ init = (ctx) ->
     else if y_elt.classList.contains('top')
       y -= h
 
+    [plot_x, plot_y] = get_translation(tt.parentElement)
+
+    # Constraint tooltip in chart
+    if x + w + plot_x > graph_bbox.width
+      x = graph_bbox.width - w - plot_x
+
+    if y + h + plot_y > graph_bbox.height
+      y = graph_bbox.height - h - plot_y
+
+    if x + plot_x < 0
+      x = -plot_x
+
+    if y + plot_y < 0
+      y = -plot_y
+
     [current_x, current_y] = get_translation(tt)
     return if current_x == x and current_y == y
     tt.setAttribute 'transform', "translate(#{x} #{y})"
     tt
 
-  untooltip = ->
+  untooltip = (el, ms) ->
     tooltip_timeout = setTimeout ->
-      tt = $('#tooltip,.tooltip', ctx).one()
-      tt.style.display = 'none'
-      tt.style.opacity = 0
-    , 1000
+      el.style.display = 'none'
+      el.style.opacity = 0
+      tooltip_el = null
+      tooltip_timeout = null
+    , ms
 
 init_svg = ->
   charts = $('.pygal-chart')
