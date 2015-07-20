@@ -41,10 +41,9 @@
   };
 
   init = function(ctx) {
-    var el, graph, graph_bbox, num, tooltip, tooltip_el, untooltip, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
+    var el, graph, num, tooltip, tooltip_el, untooltip, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
     tooltip_el = null;
     graph = $('.graph').one();
-    graph_bbox = graph.getBBox();
     _ref = $('.text-overlay .series', ctx);
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       el = _ref[_i];
@@ -242,11 +241,11 @@
         y -= h;
       }
       _ref7 = get_translation(tt.parentElement), plot_x = _ref7[0], plot_y = _ref7[1];
-      if (x + w + plot_x > graph_bbox.width) {
-        x = graph_bbox.width - w - plot_x;
+      if (x + w + plot_x > config.width) {
+        x = config.width - w - plot_x;
       }
-      if (y + h + plot_y > graph_bbox.height) {
-        y = graph_bbox.height - h - plot_y;
+      if (y + h + plot_y > config.height) {
+        y = config.height - h - plot_y;
       }
       if (x + plot_x < 0) {
         x = -plot_x;

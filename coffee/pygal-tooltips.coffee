@@ -27,7 +27,6 @@ get_translation = (el) ->
 init = (ctx) ->
   tooltip_el = null
   graph = $('.graph').one()
-  graph_bbox = graph.getBBox()
 
   for el in $('.text-overlay .series', ctx)
     el.style.display = 'none'
@@ -185,11 +184,11 @@ init = (ctx) ->
     [plot_x, plot_y] = get_translation(tt.parentElement)
 
     # Constraint tooltip in chart
-    if x + w + plot_x > graph_bbox.width
-      x = graph_bbox.width - w - plot_x
+    if x + w + plot_x > config.width
+      x = config.width - w - plot_x
 
-    if y + h + plot_y > graph_bbox.height
-      y = graph_bbox.height - h - plot_y
+    if y + h + plot_y > config.height
+      y = config.height - h - plot_y
 
     if x + plot_x < 0
       x = -plot_x
