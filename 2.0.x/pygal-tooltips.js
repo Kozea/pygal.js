@@ -158,7 +158,7 @@
       return untooltip(tooltip_el, 1000);
     });
     tooltip = function(el) {
-      var baseline, cls, current_x, current_y, dy, h, key, keys, label, legend, name, plot_x, plot_y, rect, serie_index, text, traversal, tspan, tspans, tt, value, value_index, w, x, x_elt, x_label, y, y_elt, _l, _len3, _len4, _m, _ref3, _ref4, _ref5, _ref6, _ref7;
+      var baseline, cls, current_x, current_y, dy, h, i, key, keys, label, legend, name, plot_x, plot_y, rect, serie_index, subval, text, traversal, tspan, tspans, tt, value, w, x, x_elt, x_label, y, y_elt, _l, _len3, _len4, _len5, _m, _n, _ref3, _ref4, _ref5, _ref6, _ref7;
       clearTimeout(tooltip_timeout);
       tooltip_timeout = null;
       document.createElementNS(svg, 'tooltip');
@@ -169,6 +169,7 @@
       rect = $('rect', tt).one();
       text.innerHTML = '';
       label = sibl(el, '.label').one().textContent;
+      x_label = sibl(el, '.x_label').one().textContent;
       value = sibl(el, '.value').one().textContent;
       serie_index = null;
       parent = el;
@@ -190,33 +191,31 @@
           }
         }
       }
-      if (traversal.length > 2) {
-        value_index = [].indexOf.call(traversal[traversal.length - 2].children, traversal[traversal.length - 3]);
-      }
-      x_label = null;
       legend = null;
       if (serie_index !== null) {
         legend = config.legends[serie_index];
       }
-      if (value_index !== null) {
-        x_label = (_ref4 = config.x_labels) != null ? _ref4[value_index] : void 0;
-      }
       dy = 0;
-      keys = [[label, 'label'], [value, 'value']];
+      keys = [[label, 'label']];
+      _ref4 = value.split('\n');
+      for (i = _m = 0, _len4 = _ref4.length; _m < _len4; i = ++_m) {
+        subval = _ref4[i];
+        keys.push([subval, 'value-' + i]);
+      }
       if (config.tooltip_fancy_mode) {
         keys.unshift([x_label, 'x_label']);
         keys.unshift([legend, 'legend']);
       }
       tspans = {};
-      for (_m = 0, _len4 = keys.length; _m < _len4; _m++) {
-        _ref5 = keys[_m], key = _ref5[0], name = _ref5[1];
+      for (_n = 0, _len5 = keys.length; _n < _len5; _n++) {
+        _ref5 = keys[_n], key = _ref5[0], name = _ref5[1];
         if (key) {
           tspan = document.createElementNS(svg, 'text');
           tspan.textContent = key;
           tspan.setAttribute('x', padding);
           tspan.setAttribute('dy', dy);
-          tspan.classList.add(name);
-          if (name === 'value' && config.tooltip_fancy_mode) {
+          tspan.classList.add(name.indexOf('value') === 0 ? 'value' : name);
+          if (name.indexOf('value') === 0 && config.tooltip_fancy_mode) {
             tspan.classList.add('color-' + serie_index);
           }
           text.appendChild(tspan);

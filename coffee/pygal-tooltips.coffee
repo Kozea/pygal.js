@@ -97,6 +97,7 @@ init = (ctx) ->
     text.innerHTML = ''
 
     label = sibl(el, '.label').one().textContent
+    x_label = sibl(el, '.x_label').one().textContent
     value = sibl(el, '.value').one().textContent
 
     serie_index = null
@@ -116,26 +117,20 @@ init = (ctx) ->
           serie_index = +cls.replace('serie-', '')
           break
 
-    if traversal.length > 2
-      value_index = [].indexOf.call(
-        traversal[traversal.length - 2].children,
-        traversal[traversal.length - 3])
-
-    x_label = null
     legend = null
 
     if serie_index isnt null
       legend = config.legends[serie_index]
 
-    if value_index isnt null
-      x_label = config.x_labels?[value_index]
-
     # text creation and vertical positionning
     dy = 0
     keys = [
         [label, 'label'],
-        [value, 'value']
     ]
+
+    for subval, i in value.split('\n')
+      keys.push([subval, 'value-' + i])
+
     if config.tooltip_fancy_mode
       keys.unshift [x_label, 'x_label']
       keys.unshift [legend, 'legend']
@@ -148,9 +143,9 @@ init = (ctx) ->
         tspan.textContent = key
         tspan.setAttribute 'x', padding
         tspan.setAttribute 'dy', dy
-        tspan.classList.add name
+        tspan.classList.add if name.indexOf('value') is 0 then 'value' else name
 
-        if name is 'value' and config.tooltip_fancy_mode
+        if name.indexOf('value') is 0 and config.tooltip_fancy_mode
           tspan.classList.add('color-' + serie_index)
 
         text.appendChild tspan
