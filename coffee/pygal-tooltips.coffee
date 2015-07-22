@@ -25,11 +25,19 @@ get_translation = (el) ->
     1).map (x) -> +x
 
 init = (ctx) ->
+  if $('svg', ctx).length
+    inner_svg = $('svg')[1]
+    parent = inner_svg.parentElement
+    box = inner_svg.viewBox.baseVal
+    bbox = parent.getBBox()
+
+    xconvert = (x) -> ((x - box.x) / box.width) * bbox.width
+    yconvert = (y) -> ((y - box.y) / box.height) * bbox.height
+  else
+    xconvert = yconvert = (x) -> x
+
   tooltip_el = null
   graph = $('.graph').one()
-
-  for el in $('.text-overlay .series', ctx)
-    el.style.display = 'none'
 
   for el in $('.reactive', ctx)
     el.addEventListener 'mouseenter', do (el) -> ->
@@ -95,18 +103,23 @@ init = (ctx) ->
     parent = el
     traversal = []
     while parent
-      parent = parent.parentElement
       traversal.push parent
 
       if parent.classList.contains('series')
         break
-    for cls in parent.classList
-      if cls.indexOf('serie-') is 0
-        serie_index = +cls.replace('serie-', '')
-        break
 
-    value_index = [].indexOf.call(
-      traversal[traversal.length - 2].children, traversal[traversal.length - 3])
+      parent = parent.parentElement
+
+    if parent
+      for cls in parent.classList
+        if cls.indexOf('serie-') is 0
+          serie_index = +cls.replace('serie-', '')
+          break
+
+    if traversal.length > 2
+      value_index = [].indexOf.call(
+        traversal[traversal.length - 2].children,
+        traversal[traversal.length - 3])
 
     x_label = null
     legend = null
@@ -174,12 +187,16 @@ init = (ctx) ->
       x -= w / 2
     else if x_elt.classList.contains('left')
       x -= w
+    else if x_elt.classList.contains('auto')
+      x = xconvert(el.getBBox().x + el.getBBox().width / 2) - w / 2
 
     y = parseInt y_elt.textContent
     if y_elt.classList.contains('centered')
       y -= h / 2
     else if y_elt.classList.contains('top')
       y -= h
+    else if y_elt.classList.contains('auto')
+      y = yconvert(el.getBBox().y + el.getBBox().height / 2) - h / 2
 
     [plot_x, plot_y] = get_translation(tt.parentElement)
 
