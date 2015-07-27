@@ -38,6 +38,7 @@ init = (ctx) ->
 
   tooltip_el = null
   graph = $('.graph').one()
+  tt = $('.tooltip', ctx).one()
 
   for el in $('.reactive', ctx)
     el.addEventListener 'mouseenter', do (el) -> ->
@@ -69,24 +70,28 @@ init = (ctx) ->
     el.addEventListener 'mouseenter', do (el) -> ->
       tooltip_el = tooltip(el)
 
+  tt.addEventListener 'mouseenter', ->
+    tooltip_el?.classList.add 'active'
+
+  tt.addEventListener 'mouseleave', ->
+    tooltip_el?.classList.remove 'active'
+
   document.addEventListener 'mouseleave', ->
     return unless tooltip_el
     if tooltip_timeout
       clearTimeout tooltip_timeout
-    untooltip(tooltip_el, 0)
+    untooltip(0)
 
   graph.addEventListener 'mousemove', (el) ->
     return unless tooltip_el
     return if tooltip_timeout
     return unless matches el.target, '.background'
-    untooltip(tooltip_el, 1000)
+    untooltip(1000)
 
   tooltip = (el) ->
     clearTimeout(tooltip_timeout)
     tooltip_timeout = null
-    document.createElementNS svg, 'tooltip'
 
-    tt = $('.tooltip', ctx).one()
     tt.style.opacity = 1
     tt.style.display = ''
 
@@ -210,12 +215,13 @@ init = (ctx) ->
     [current_x, current_y] = get_translation(tt)
     return if current_x == x and current_y == y
     tt.setAttribute 'transform', "translate(#{x} #{y})"
-    tt
+    el
 
-  untooltip = (el, ms) ->
+  untooltip = (ms) ->
     tooltip_timeout = setTimeout ->
-      el.style.display = 'none'
-      el.style.opacity = 0
+      tt.style.display = 'none'
+      tt.style.opacity = 0
+      tooltip_el?.classList.remove 'active'
       tooltip_el = null
       tooltip_timeout = null
     , ms

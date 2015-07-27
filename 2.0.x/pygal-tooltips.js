@@ -41,7 +41,7 @@
   };
 
   init = function(ctx) {
-    var bbox, box, el, graph, inner_svg, num, parent, tooltip, tooltip_el, untooltip, xconvert, yconvert, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+    var bbox, box, el, graph, inner_svg, num, parent, tooltip, tooltip_el, tt, untooltip, xconvert, yconvert, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
     if ($('svg', ctx).length) {
       inner_svg = $('svg')[1];
       parent = inner_svg.parentElement;
@@ -60,6 +60,7 @@
     }
     tooltip_el = null;
     graph = $('.graph').one();
+    tt = $('.tooltip', ctx).one();
     _ref = $('.reactive', ctx);
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       el = _ref[_i];
@@ -132,6 +133,12 @@
         };
       })(el));
     }
+    tt.addEventListener('mouseenter', function() {
+      return tooltip_el != null ? tooltip_el.classList.add('active') : void 0;
+    });
+    tt.addEventListener('mouseleave', function() {
+      return tooltip_el != null ? tooltip_el.classList.remove('active') : void 0;
+    });
     document.addEventListener('mouseleave', function() {
       if (!tooltip_el) {
         return;
@@ -139,7 +146,7 @@
       if (tooltip_timeout) {
         clearTimeout(tooltip_timeout);
       }
-      return untooltip(tooltip_el, 0);
+      return untooltip(0);
     });
     graph.addEventListener('mousemove', function(el) {
       if (!tooltip_el) {
@@ -151,14 +158,12 @@
       if (!matches(el.target, '.background')) {
         return;
       }
-      return untooltip(tooltip_el, 1000);
+      return untooltip(1000);
     });
     tooltip = function(el) {
-      var baseline, cls, current_x, current_y, dy, h, i, key, keys, label, legend, name, plot_x, plot_y, rect, serie_index, subval, text, traversal, tspan, tspans, tt, value, w, x, x_elt, x_label, y, y_elt, _l, _len3, _len4, _len5, _m, _n, _ref3, _ref4, _ref5, _ref6, _ref7;
+      var baseline, cls, current_x, current_y, dy, h, i, key, keys, label, legend, name, plot_x, plot_y, rect, serie_index, subval, text, traversal, tspan, tspans, value, w, x, x_elt, x_label, y, y_elt, _l, _len3, _len4, _len5, _m, _n, _ref3, _ref4, _ref5, _ref6, _ref7;
       clearTimeout(tooltip_timeout);
       tooltip_timeout = null;
-      document.createElementNS(svg, 'tooltip');
-      tt = $('.tooltip', ctx).one();
       tt.style.opacity = 1;
       tt.style.display = '';
       text = $('g.text', tt).one();
@@ -272,12 +277,15 @@
         return;
       }
       tt.setAttribute('transform', "translate(" + x + " " + y + ")");
-      return tt;
+      return el;
     };
-    return untooltip = function(el, ms) {
+    return untooltip = function(ms) {
       return tooltip_timeout = setTimeout(function() {
-        el.style.display = 'none';
-        el.style.opacity = 0;
+        tt.style.display = 'none';
+        tt.style.opacity = 0;
+        if (tooltip_el != null) {
+          tooltip_el.classList.remove('active');
+        }
         tooltip_el = null;
         return tooltip_timeout = null;
       }, ms);
