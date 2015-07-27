@@ -80,16 +80,11 @@
       num = el.id.replace('activate-serie-', '');
       el.addEventListener('mouseenter', (function(num) {
         return function() {
-          var ov, re, _k, _l, _len2, _len3, _ref2, _ref3, _results;
-          _ref2 = $('.text-overlay .serie-' + num, ctx);
-          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-            ov = _ref2[_k];
-            ov.style.display = '';
-          }
-          _ref3 = $('.serie-' + num + ' .reactive', ctx);
+          var re, _k, _len2, _ref2, _results;
+          _ref2 = $('.serie-' + num + ' .reactive', ctx);
           _results = [];
-          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-            re = _ref3[_l];
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            re = _ref2[_k];
             _results.push(re.classList.add('active'));
           }
           return _results;
@@ -97,16 +92,11 @@
       })(num));
       el.addEventListener('mouseleave', (function(num) {
         return function() {
-          var ov, re, _k, _l, _len2, _len3, _ref2, _ref3, _results;
-          _ref2 = $('.text-overlay .serie-' + num, ctx);
-          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-            ov = _ref2[_k];
-            ov.style.display = 'none';
-          }
-          _ref3 = $('.serie-' + num + ' .reactive', ctx);
+          var re, _k, _len2, _ref2, _results;
+          _ref2 = $('.serie-' + num + ' .reactive', ctx);
           _results = [];
-          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-            re = _ref3[_l];
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            re = _ref2[_k];
             _results.push(re.classList.remove('active'));
           }
           return _results;
@@ -114,14 +104,20 @@
       })(num));
       el.addEventListener('click', (function(el, num) {
         return function() {
-          var re, rect, _k, _len2, _ref2, _results;
+          var ov, re, rect, show, _k, _l, _len2, _len3, _ref2, _ref3, _results;
           rect = $('rect', el).one();
-          rect.style.fill = rect.style.fill === '' && 'transparent' || '';
+          show = rect.style.fill !== '';
+          rect.style.fill = show ? '' : 'transparent';
           _ref2 = $('.serie-' + num + ' .reactive', ctx);
-          _results = [];
           for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
             re = _ref2[_k];
-            _results.push(re.style.display = re.style.display === '' && 'none' || '');
+            re.style.display = show ? '' : 'none';
+          }
+          _ref3 = $('.text-overlay .serie-' + num, ctx);
+          _results = [];
+          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+            ov = _ref3[_l];
+            _results.push(ov.style.display = show ? '' : 'none');
           }
           return _results;
         };

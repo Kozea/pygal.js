@@ -49,22 +49,21 @@ init = (ctx) ->
     num = el.id.replace('activate-serie-', '')
 
     el.addEventListener 'mouseenter', do (num) -> ->
-      for ov in $('.text-overlay .serie-' + num, ctx)
-        ov.style.display = ''
       for re in $('.serie-' + num + ' .reactive', ctx)
         re.classList.add 'active'
 
     el.addEventListener 'mouseleave', do (num) -> ->
-      for ov in $('.text-overlay .serie-' + num, ctx)
-        ov.style.display = 'none'
       for re in $('.serie-' + num + ' .reactive', ctx)
         re.classList.remove 'active'
 
     el.addEventListener 'click', do (el, num) -> ->
       rect = $('rect', el).one()
-      rect.style.fill = rect.style.fill is '' and 'transparent' or ''
+      show = rect.style.fill isnt ''
+      rect.style.fill = if show then '' else 'transparent'
       for re in $('.serie-' + num + ' .reactive', ctx)
-        re.style.display = re.style.display is '' and 'none' or ''
+        re.style.display = if show then '' else 'none'
+      for ov in $('.text-overlay .serie-' + num, ctx)
+        ov.style.display = if show then '' else 'none'
 
   for el in $('.tooltip-trigger', ctx)
     el.addEventListener 'mouseenter', do (el) -> ->
