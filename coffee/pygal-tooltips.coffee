@@ -1,4 +1,5 @@
-svg = 'http://www.w3.org/2000/svg'
+svg_ns = 'http://www.w3.org/2000/svg'
+xlink_ns = 'http://www.w3.org/1999/xlink'
 
 $ = (sel, ctx=null) ->
   ctx = ctx or document
@@ -77,13 +78,11 @@ init = (ctx) ->
     tooltip_el?.classList.remove 'active'
 
   document.addEventListener 'mouseleave', ->
-    return unless tooltip_el
     if tooltip_timeout
       clearTimeout tooltip_timeout
     untooltip(0)
 
   graph.addEventListener 'mousemove', (el) ->
-    return unless tooltip_el
     return if tooltip_timeout
     return unless matches el.target, '.background'
     untooltip(1000)
@@ -95,14 +94,15 @@ init = (ctx) ->
     tt.style.opacity = 1
     tt.style.display = ''
 
-    text = $('g.text', tt).one()
+    text_group = $('g.text', tt).one()
     rect = $('rect', tt).one()
 
-    text.innerHTML = ''
+    text_group.innerHTML = ''
 
     label = sibl(el, '.label').one().textContent
     x_label = sibl(el, '.x_label').one().textContent
     value = sibl(el, '.value').one().textContent
+    xlink = sibl(el, '.xlink').one().textContent
 
     serie_index = null
     parent = el
@@ -136,47 +136,61 @@ init = (ctx) ->
       keys.push([subval, 'value-' + i])
 
     if config.tooltip_fancy_mode
+      keys.push [xlink, 'xlink']
       keys.unshift [x_label, 'x_label']
       keys.unshift [legend, 'legend']
 
-    tspans = {}
+    texts = {}
     for [key, name] in keys
 
       if key
-        tspan = document.createElementNS svg, 'text'
-        tspan.textContent = key
-        tspan.setAttribute 'x', padding
-        tspan.setAttribute 'dy', dy
-        tspan.classList.add if name.indexOf('value') is 0 then 'value' else name
+        text = document.createElementNS svg_ns, 'text'
+        text.textContent = key
+        text.setAttribute 'x', padding
+        text.setAttribute 'dy', dy
+        text.classList.add if name.indexOf('value') is 0 then 'value' else name
 
         if name.indexOf('value') is 0 and config.tooltip_fancy_mode
-          tspan.classList.add('color-' + serie_index)
+          text.classList.add('color-' + serie_index)
 
-        text.appendChild tspan
-
-        dy += tspan.getBBox().height + padding / 2
-        baseline = padding
-        if tspan.style.dominantBaseline isnt undefined
-          tspan.style.dominantBaseline = 'text-before-edge'
+        if name is 'xlink'
+          a = document.createElementNS svg_ns, 'a'
+          a.setAttributeNS xlink_ns, 'href', key
+          a.textContent = undefined
+          a.appendChild text
+          text.textContent = 'Link >'
+          text_group.appendChild a
         else
-          baseline += tspan.getBBox().height * .8
-        tspan.setAttribute 'y', baseline
-        tspans[name] = tspan
+          text_group.appendChild text
+
+
+        dy += text.getBBox().height + padding / 2
+        baseline = padding
+        if text.style.dominantBaseline isnt undefined
+          text.style.dominantBaseline = 'text-before-edge'
+        else
+          baseline += text.getBBox().height * .8
+        text.setAttribute 'y', baseline
+        texts[name] = text
 
     # Tooltip sizing
-    w = text.getBBox().width + 2 * padding
-    h = text.getBBox().height + 2 * padding
+    w = text_group.getBBox().width + 2 * padding
+    h = text_group.getBBox().height + 2 * padding
     rect.setAttribute('width', w)
     rect.setAttribute('height', h)
 
     # Tspan horizontal processing
-    if tspans.value
-      tspans.value.setAttribute 'dx',
-      (w - tspans.value.getBBox().width) / 2 - padding
+    if texts.value
+      texts.value.setAttribute 'dx',
+      (w - texts.value.getBBox().width) / 2 - padding
 
-    if tspans.x_label
-      tspans.x_label.setAttribute 'dx',
-       w - tspans.x_label.getBBox().width - 2 * padding
+    if texts.x_label
+      texts.x_label.setAttribute 'dx',
+       w - texts.x_label.getBBox().width - 2 * padding
+
+    if texts.xlink
+      texts.xlink.setAttribute 'dx',
+       w - texts.xlink.getBBox().width - 2 * padding
 
     x_elt = sibl(el, '.x').one()
     y_elt = sibl(el, '.y').one()
@@ -213,7 +227,7 @@ init = (ctx) ->
       y = -plot_y
 
     [current_x, current_y] = get_translation(tt)
-    return if current_x == x and current_y == y
+    return el if current_x == x and current_y == y
     tt.setAttribute 'transform', "translate(#{x} #{y})"
     el
 
@@ -222,7 +236,6 @@ init = (ctx) ->
       tt.style.display = 'none'
       tt.style.opacity = 0
       tooltip_el?.classList.remove 'active'
-      tooltip_el = null
       tooltip_timeout = null
     , ms
 

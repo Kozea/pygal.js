@@ -1,7 +1,9 @@
 (function() {
-  var $, get_translation, init, init_svg, matches, padding, r_translation, sibl, svg, tooltip_timeout;
+  var $, get_translation, init, init_svg, matches, padding, r_translation, sibl, svg_ns, tooltip_timeout, xlink_ns;
 
-  svg = 'http://www.w3.org/2000/svg';
+  svg_ns = 'http://www.w3.org/2000/svg';
+
+  xlink_ns = 'http://www.w3.org/1999/xlink';
 
   $ = function(sel, ctx) {
     if (ctx == null) {
@@ -140,18 +142,12 @@
       return tooltip_el != null ? tooltip_el.classList.remove('active') : void 0;
     });
     document.addEventListener('mouseleave', function() {
-      if (!tooltip_el) {
-        return;
-      }
       if (tooltip_timeout) {
         clearTimeout(tooltip_timeout);
       }
       return untooltip(0);
     });
     graph.addEventListener('mousemove', function(el) {
-      if (!tooltip_el) {
-        return;
-      }
       if (tooltip_timeout) {
         return;
       }
@@ -161,17 +157,18 @@
       return untooltip(1000);
     });
     tooltip = function(el) {
-      var baseline, cls, current_x, current_y, dy, h, i, key, keys, label, legend, name, plot_x, plot_y, rect, serie_index, subval, text, traversal, tspan, tspans, value, w, x, x_elt, x_label, y, y_elt, _l, _len3, _len4, _len5, _m, _n, _ref3, _ref4, _ref5, _ref6, _ref7;
+      var a, baseline, cls, current_x, current_y, dy, h, i, key, keys, label, legend, name, plot_x, plot_y, rect, serie_index, subval, text, text_group, texts, traversal, value, w, x, x_elt, x_label, xlink, y, y_elt, _l, _len3, _len4, _len5, _m, _n, _ref3, _ref4, _ref5, _ref6, _ref7;
       clearTimeout(tooltip_timeout);
       tooltip_timeout = null;
       tt.style.opacity = 1;
       tt.style.display = '';
-      text = $('g.text', tt).one();
+      text_group = $('g.text', tt).one();
       rect = $('rect', tt).one();
-      text.innerHTML = '';
+      text_group.innerHTML = '';
       label = sibl(el, '.label').one().textContent;
       x_label = sibl(el, '.x_label').one().textContent;
       value = sibl(el, '.value').one().textContent;
+      xlink = sibl(el, '.xlink').one().textContent;
       serie_index = null;
       parent = el;
       traversal = [];
@@ -204,42 +201,55 @@
         keys.push([subval, 'value-' + i]);
       }
       if (config.tooltip_fancy_mode) {
+        keys.push([xlink, 'xlink']);
         keys.unshift([x_label, 'x_label']);
         keys.unshift([legend, 'legend']);
       }
-      tspans = {};
+      texts = {};
       for (_n = 0, _len5 = keys.length; _n < _len5; _n++) {
         _ref5 = keys[_n], key = _ref5[0], name = _ref5[1];
         if (key) {
-          tspan = document.createElementNS(svg, 'text');
-          tspan.textContent = key;
-          tspan.setAttribute('x', padding);
-          tspan.setAttribute('dy', dy);
-          tspan.classList.add(name.indexOf('value') === 0 ? 'value' : name);
+          text = document.createElementNS(svg_ns, 'text');
+          text.textContent = key;
+          text.setAttribute('x', padding);
+          text.setAttribute('dy', dy);
+          text.classList.add(name.indexOf('value') === 0 ? 'value' : name);
           if (name.indexOf('value') === 0 && config.tooltip_fancy_mode) {
-            tspan.classList.add('color-' + serie_index);
+            text.classList.add('color-' + serie_index);
           }
-          text.appendChild(tspan);
-          dy += tspan.getBBox().height + padding / 2;
-          baseline = padding;
-          if (tspan.style.dominantBaseline !== void 0) {
-            tspan.style.dominantBaseline = 'text-before-edge';
+          if (name === 'xlink') {
+            a = document.createElementNS(svg_ns, 'a');
+            a.setAttributeNS(xlink_ns, 'href', key);
+            a.textContent = void 0;
+            a.appendChild(text);
+            text.textContent = 'Link >';
+            text_group.appendChild(a);
           } else {
-            baseline += tspan.getBBox().height * .8;
+            text_group.appendChild(text);
           }
-          tspan.setAttribute('y', baseline);
-          tspans[name] = tspan;
+          dy += text.getBBox().height + padding / 2;
+          baseline = padding;
+          if (text.style.dominantBaseline !== void 0) {
+            text.style.dominantBaseline = 'text-before-edge';
+          } else {
+            baseline += text.getBBox().height * .8;
+          }
+          text.setAttribute('y', baseline);
+          texts[name] = text;
         }
       }
-      w = text.getBBox().width + 2 * padding;
-      h = text.getBBox().height + 2 * padding;
+      w = text_group.getBBox().width + 2 * padding;
+      h = text_group.getBBox().height + 2 * padding;
       rect.setAttribute('width', w);
       rect.setAttribute('height', h);
-      if (tspans.value) {
-        tspans.value.setAttribute('dx', (w - tspans.value.getBBox().width) / 2 - padding);
+      if (texts.value) {
+        texts.value.setAttribute('dx', (w - texts.value.getBBox().width) / 2 - padding);
       }
-      if (tspans.x_label) {
-        tspans.x_label.setAttribute('dx', w - tspans.x_label.getBBox().width - 2 * padding);
+      if (texts.x_label) {
+        texts.x_label.setAttribute('dx', w - texts.x_label.getBBox().width - 2 * padding);
+      }
+      if (texts.xlink) {
+        texts.xlink.setAttribute('dx', w - texts.xlink.getBBox().width - 2 * padding);
       }
       x_elt = sibl(el, '.x').one();
       y_elt = sibl(el, '.y').one();
@@ -274,7 +284,7 @@
       }
       _ref7 = get_translation(tt), current_x = _ref7[0], current_y = _ref7[1];
       if (current_x === x && current_y === y) {
-        return;
+        return el;
       }
       tt.setAttribute('transform', "translate(" + x + " " + y + ")");
       return el;
@@ -286,7 +296,6 @@
         if (tooltip_el != null) {
           tooltip_el.classList.remove('active');
         }
-        tooltip_el = null;
         return tooltip_timeout = null;
       }, ms);
     };
