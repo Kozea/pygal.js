@@ -1,5 +1,5 @@
 (function() {
-  var $, get_translation, init, init_svg, matches, padding, r_translation, sibl, svg_ns, tooltip_timeout, xlink_ns;
+  var $, addClass, getClass, get_translation, hasClass, ie9, init, init_svg, matches, padding, r_translation, removeClass, sibl, svg_ns, tooltip_timeout, xlink_ns;
 
   svg_ns = 'http://www.w3.org/2000/svg';
 
@@ -13,6 +13,38 @@
     return Array.prototype.slice.call(ctx.querySelectorAll(sel), 0);
   };
 
+  addClass = function(elt, cls) {
+    if (elt.classList) {
+      return elt.classList.add(cls);
+    } else {
+      return elt.className.baseVal += ' ' + cls;
+    }
+  };
+
+  removeClass = function(elt, cls) {
+    if (elt.classList) {
+      return elt.classList.remove(className);
+    } else {
+      return elt.className.baseVal = elt.className.baseVal.replace(new RegExp('(^|\\b)' + elt.className.baseVal.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    }
+  };
+
+  hasClass = function(elt, cls) {
+    if (elt.classList) {
+      return elt.classList.contains(cls);
+    } else {
+      return elt.className.baseVal.split(' ').indexOf(cls > -1);
+    }
+  };
+
+  getClass = function(elt) {
+    if (elt.classList) {
+      return elt.classList;
+    } else {
+      return elt.className.baseVal.split(' ');
+    }
+  };
+
   matches = function(el, selector) {
     return (el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector).call(el, selector);
   };
@@ -21,7 +53,7 @@
     if (match == null) {
       match = null;
     }
-    return Array.prototype.filter.call(el.parentElement.children, function(child) {
+    return Array.prototype.filter.call(el.parentNode.childNodes, function(child) {
       return child !== el && (!match || matches(child, match));
     });
   };
@@ -46,7 +78,7 @@
     var bbox, box, el, graph, inner_svg, num, parent, tooltip, tooltip_el, tt, untooltip, xconvert, yconvert, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
     if ($('svg', ctx).length) {
       inner_svg = $('svg')[1];
-      parent = inner_svg.parentElement;
+      parent = inner_svg.parentNode;
       box = inner_svg.viewBox.baseVal;
       bbox = parent.getBBox();
       xconvert = function(x) {
@@ -68,12 +100,12 @@
       el = _ref[_i];
       el.addEventListener('mouseenter', (function(el) {
         return function() {
-          return el.classList.add('active');
+          return addClass(el, 'active');
         };
       })(el));
       el.addEventListener('mouseleave', (function(el) {
         return function() {
-          return el.classList.remove('active');
+          return removeClass(el, 'active');
         };
       })(el));
     }
@@ -88,7 +120,7 @@
           _results = [];
           for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
             re = _ref2[_k];
-            _results.push(re.classList.add('active'));
+            _results.push(addClass(re, 'active'));
           }
           return _results;
         };
@@ -100,7 +132,7 @@
           _results = [];
           for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
             re = _ref2[_k];
-            _results.push(re.classList.remove('active'));
+            _results.push(removeClass(re, 'active'));
           }
           return _results;
         };
@@ -136,10 +168,16 @@
       })(el));
     }
     tt.addEventListener('mouseenter', function() {
-      return tooltip_el != null ? tooltip_el.classList.add('active') : void 0;
+      if (!tooltip_el) {
+        return;
+      }
+      return addClass(tooltip_el, 'active');
     });
     tt.addEventListener('mouseleave', function() {
-      return tooltip_el != null ? tooltip_el.classList.remove('active') : void 0;
+      if (!tooltip_el) {
+        return;
+      }
+      return removeClass(tooltip_el, 'active');
     });
     document.addEventListener('mouseleave', function() {
       if (tooltip_timeout) {
@@ -174,13 +212,13 @@
       traversal = [];
       while (parent) {
         traversal.push(parent);
-        if (parent.classList.contains('series')) {
+        if (hasClass(parent, 'series')) {
           break;
         }
-        parent = parent.parentElement;
+        parent = parent.parentNode;
       }
       if (parent) {
-        _ref3 = parent.classList;
+        _ref3 = getClass(parent);
         for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
           cls = _ref3[_l];
           if (cls.indexOf('serie-') === 0) {
@@ -213,9 +251,9 @@
           text.textContent = key;
           text.setAttribute('x', padding);
           text.setAttribute('dy', dy);
-          text.classList.add(name.indexOf('value') === 0 ? 'value' : name);
+          addClass(text, name.indexOf('value') === 0 ? 'value' : name);
           if (name.indexOf('value') === 0 && config.tooltip_fancy_mode) {
-            text.classList.add('color-' + serie_index);
+            addClass(text, 'color-' + serie_index);
           }
           if (name === 'xlink') {
             a = document.createElementNS(svg_ns, 'a');
@@ -254,22 +292,22 @@
       x_elt = sibl(el, '.x').one();
       y_elt = sibl(el, '.y').one();
       x = parseInt(x_elt.textContent);
-      if (x_elt.classList.contains('centered')) {
+      if (hasClass(x_elt, 'centered')) {
         x -= w / 2;
-      } else if (x_elt.classList.contains('left')) {
+      } else if (hasClass(x_elt, 'left')) {
         x -= w;
-      } else if (x_elt.classList.contains('auto')) {
+      } else if (hasClass(x_elt, 'auto')) {
         x = xconvert(el.getBBox().x + el.getBBox().width / 2) - w / 2;
       }
       y = parseInt(y_elt.textContent);
-      if (y_elt.classList.contains('centered')) {
+      if (hasClass(y_elt, 'centered')) {
         y -= h / 2;
-      } else if (y_elt.classList.contains('top')) {
+      } else if (hasClass(y_elt, 'top')) {
         y -= h;
-      } else if (y_elt.classList.contains('auto')) {
+      } else if (hasClass(y_elt, 'auto')) {
         y = yconvert(el.getBBox().y + el.getBBox().height / 2) - h / 2;
       }
-      _ref6 = get_translation(tt.parentElement), plot_x = _ref6[0], plot_y = _ref6[1];
+      _ref6 = get_translation(tt.parentNode), plot_x = _ref6[0], plot_y = _ref6[1];
       if (x + w + plot_x > config.width) {
         x = config.width - w - plot_x;
       }
@@ -293,9 +331,7 @@
       return tooltip_timeout = setTimeout(function() {
         tt.style.display = 'none';
         tt.style.opacity = 0;
-        if (tooltip_el != null) {
-          tooltip_el.classList.remove('active');
-        }
+        tooltip_el && removeClass(tooltip_el, 'active');
         return tooltip_timeout = null;
       }, ms);
     };
@@ -316,7 +352,9 @@
     }
   };
 
-  if (document.readyState !== 'loading') {
+  ie9 = document.all && !window.atob;
+
+  if (document.readyState !== 'loading' && !(ie9 || document.readyState === 'complete')) {
     init_svg();
   } else {
     document.addEventListener('DOMContentLoaded', function() {

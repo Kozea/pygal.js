@@ -5,13 +5,41 @@ $ = (sel, ctx=null) ->
   ctx = ctx or document
   Array.prototype.slice.call ctx.querySelectorAll(sel), 0
 
+addClass = (elt, cls) ->
+  if elt.classList
+    elt.classList.add cls
+  else
+    elt.className.baseVal += ' ' + cls
+
+removeClass = (elt, cls) ->
+  if elt.classList
+    elt.classList.remove className
+  else
+    elt.className.baseVal = elt.className.baseVal.replace(
+      new RegExp(
+        '(^|\\b)' +
+         elt.className.baseVal.split(' ').join('|') +
+          '(\\b|$)', 'gi'), ' ')
+
+hasClass = (elt, cls) ->
+  if elt.classList
+    elt.classList.contains cls
+  else
+    elt.className.baseVal.split(' ').indexOf cls > -1
+
+getClass = (elt) ->
+  if elt.classList
+    elt.classList
+  else
+    elt.className.baseVal.split(' ')
+
 matches = (el, selector) ->
   (el.matches || el.matchesSelector ||
    el.msMatchesSelector || el.mozMatchesSelector ||
     el.webkitMatchesSelector || el.oMatchesSelector).call(el, selector)
 
 sibl = (el, match=null) ->
-  Array.prototype.filter.call el.parentElement.children, (child) ->
+  Array.prototype.filter.call el.parentNode.childNodes, (child) ->
     child isnt el and (not match or matches(child, match))
 
 Array.prototype.one = ->
@@ -28,7 +56,7 @@ get_translation = (el) ->
 init = (ctx) ->
   if $('svg', ctx).length
     inner_svg = $('svg')[1]
-    parent = inner_svg.parentElement
+    parent = inner_svg.parentNode
     box = inner_svg.viewBox.baseVal
     bbox = parent.getBBox()
 
@@ -43,20 +71,20 @@ init = (ctx) ->
 
   for el in $('.reactive', ctx)
     el.addEventListener 'mouseenter', do (el) -> ->
-      el.classList.add 'active'
+      addClass el, 'active'
     el.addEventListener 'mouseleave', do (el) -> ->
-      el.classList.remove 'active'
+      removeClass el, 'active'
 
   for el in $('.activate-serie', ctx)
     num = el.id.replace('activate-serie-', '')
 
     el.addEventListener 'mouseenter', do (num) -> ->
       for re in $('.serie-' + num + ' .reactive', ctx)
-        re.classList.add 'active'
+        addClass re, 'active'
 
     el.addEventListener 'mouseleave', do (num) -> ->
       for re in $('.serie-' + num + ' .reactive', ctx)
-        re.classList.remove 'active'
+        removeClass re, 'active'
 
     el.addEventListener 'click', do (el, num) -> ->
       rect = $('rect', el).one()
@@ -72,10 +100,12 @@ init = (ctx) ->
       tooltip_el = tooltip(el)
 
   tt.addEventListener 'mouseenter', ->
-    tooltip_el?.classList.add 'active'
+    return unless tooltip_el
+    addClass tooltip_el, 'active'
 
   tt.addEventListener 'mouseleave', ->
-    tooltip_el?.classList.remove 'active'
+    return unless tooltip_el
+    removeClass tooltip_el, 'active'
 
   document.addEventListener 'mouseleave', ->
     if tooltip_timeout
@@ -110,13 +140,13 @@ init = (ctx) ->
     while parent
       traversal.push parent
 
-      if parent.classList.contains('series')
+      if hasClass parent, 'series'
         break
 
-      parent = parent.parentElement
+      parent = parent.parentNode
 
     if parent
-      for cls in parent.classList
+      for cls in getClass parent
         if cls.indexOf('serie-') is 0
           serie_index = +cls.replace('serie-', '')
           break
@@ -148,10 +178,10 @@ init = (ctx) ->
         text.textContent = key
         text.setAttribute 'x', padding
         text.setAttribute 'dy', dy
-        text.classList.add if name.indexOf('value') is 0 then 'value' else name
+        addClass text, if name.indexOf('value') is 0 then 'value' else name
 
         if name.indexOf('value') is 0 and config.tooltip_fancy_mode
-          text.classList.add('color-' + serie_index)
+          addClass text, 'color-' + serie_index
 
         if name is 'xlink'
           a = document.createElementNS svg_ns, 'a'
@@ -196,22 +226,22 @@ init = (ctx) ->
     y_elt = sibl(el, '.y').one()
 
     x = parseInt x_elt.textContent
-    if x_elt.classList.contains('centered')
+    if hasClass x_elt, 'centered'
       x -= w / 2
-    else if x_elt.classList.contains('left')
+    else if hasClass x_elt, 'left'
       x -= w
-    else if x_elt.classList.contains('auto')
+    else if hasClass x_elt, 'auto'
       x = xconvert(el.getBBox().x + el.getBBox().width / 2) - w / 2
 
     y = parseInt y_elt.textContent
-    if y_elt.classList.contains('centered')
+    if hasClass y_elt, 'centered'
       y -= h / 2
-    else if y_elt.classList.contains('top')
+    else if hasClass y_elt, 'top'
       y -= h
-    else if y_elt.classList.contains('auto')
+    else if hasClass y_elt, 'auto'
       y = yconvert(el.getBBox().y + el.getBBox().height / 2) - h / 2
 
-    [plot_x, plot_y] = get_translation(tt.parentElement)
+    [plot_x, plot_y] = get_translation(tt.parentNode)
 
     # Constraint tooltip in chart
     if x + w + plot_x > config.width
@@ -235,7 +265,7 @@ init = (ctx) ->
     tooltip_timeout = setTimeout ->
       tt.style.display = 'none'
       tt.style.opacity = 0
-      tooltip_el?.classList.remove 'active'
+      tooltip_el and removeClass tooltip_el, 'active'
       tooltip_timeout = null
     , ms
 
@@ -247,8 +277,10 @@ init_svg = ->
   else
     init()
 
+ie9 = document.all and not window.atob
 
-if document.readyState isnt 'loading'
+if document.readyState isnt 'loading' and not (
+  ie9 or document.readyState is 'complete')
   init_svg()
 else
   document.addEventListener 'DOMContentLoaded', -> init_svg()
