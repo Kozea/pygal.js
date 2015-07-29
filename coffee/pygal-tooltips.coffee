@@ -13,7 +13,7 @@ addClass = (elt, cls) ->
 
 removeClass = (elt, cls) ->
   if elt.classList
-    elt.classList.remove className
+    elt.classList.remove cls.className
   else
     elt.className.baseVal = elt.className.baseVal.replace(
       new RegExp(
