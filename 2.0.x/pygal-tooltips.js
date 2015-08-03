@@ -311,8 +311,6 @@
         _results.push(init(chart));
       }
       return _results;
-    } else {
-      return init();
     }
   };
 
@@ -323,5 +321,10 @@
       return init_svg();
     });
   }
+
+  window.pygal = {
+    init: init,
+    init_svg: init_svg
+  };
 
 }).call(this);

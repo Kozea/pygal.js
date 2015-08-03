@@ -244,12 +244,12 @@ init_svg = ->
   if charts.length
     for chart in charts
       init chart
-  else
-    init()
-
 
 if document.readyState isnt 'loading'
   init_svg()
 else
   document.addEventListener 'DOMContentLoaded', -> init_svg()
 
+window.pygal =
+  init: init
+  init_svg: init_svg
