@@ -141,7 +141,7 @@
     tt.addEventListener('mouseleave', function() {
       return tooltip_el != null ? tooltip_el.classList.remove('active') : void 0;
     });
-    document.addEventListener('mouseleave', function() {
+    ctx.addEventListener('mouseleave', function() {
       if (tooltip_timeout) {
         clearTimeout(tooltip_timeout);
       }

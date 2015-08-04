@@ -77,7 +77,7 @@ init = (ctx) ->
   tt.addEventListener 'mouseleave', ->
     tooltip_el?.classList.remove 'active'
 
-  document.addEventListener 'mouseleave', ->
+  ctx.addEventListener 'mouseleave', ->
     if tooltip_timeout
       clearTimeout tooltip_timeout
     untooltip(0)
