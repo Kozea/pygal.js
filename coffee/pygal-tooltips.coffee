@@ -37,6 +37,18 @@ init = (ctx) ->
   else
     xconvert = yconvert = (x) -> x
 
+  if window.pygal?.config?
+    # Check if config is in config
+    if window.pygal.config.no_prefix?
+      # no_prefix
+      config = window.pygal.config
+    else
+      uid = ctx.id.replace('chart-', '')
+      config = window.pygal.config[uid]
+  else
+    # Compat
+    config = window.config
+
   tooltip_el = null
   graph = $('.graph').one()
   tt = $('.tooltip', ctx).one()
