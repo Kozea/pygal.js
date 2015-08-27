@@ -10,7 +10,9 @@
       ctx = null;
     }
     ctx = ctx || document;
-    return Array.prototype.slice.call(ctx.querySelectorAll(sel), 0);
+    return Array.prototype.slice.call(ctx.querySelectorAll(sel), 0).filter(function(e) {
+      return e !== ctx;
+    });
   };
 
   matches = function(el, selector) {
@@ -45,7 +47,7 @@
   init = function(ctx) {
     var bbox, box, config, el, graph, inner_svg, num, parent, tooltip, tooltip_el, tt, uid, untooltip, xconvert, yconvert, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
     if ($('svg', ctx).length) {
-      inner_svg = $('svg')[1];
+      inner_svg = $('svg', ctx).one();
       parent = inner_svg.parentElement;
       box = inner_svg.viewBox.baseVal;
       bbox = parent.getBBox();

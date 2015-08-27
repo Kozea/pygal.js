@@ -3,7 +3,8 @@ xlink_ns = 'http://www.w3.org/1999/xlink'
 
 $ = (sel, ctx=null) ->
   ctx = ctx or document
-  Array.prototype.slice.call ctx.querySelectorAll(sel), 0
+  Array.prototype.slice.call(
+    ctx.querySelectorAll(sel), 0).filter (e) -> e != ctx
 
 matches = (el, selector) ->
   (el.matches || el.matchesSelector ||
@@ -27,7 +28,7 @@ get_translation = (el) ->
 
 init = (ctx) ->
   if $('svg', ctx).length
-    inner_svg = $('svg')[1]
+    inner_svg = $('svg', ctx).one()
     parent = inner_svg.parentElement
     box = inner_svg.viewBox.baseVal
     bbox = parent.getBBox()
