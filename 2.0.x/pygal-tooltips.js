@@ -332,9 +332,10 @@
     });
   }
 
-  window.pygal = {
-    init: init,
-    init_svg: init_svg
-  };
+  window.pygal = window.pygal || {};
+
+  window.pygal.init = init;
+
+  window.pygal.init_svg = init_svg;
 
 }).call(this);

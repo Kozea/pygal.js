@@ -262,6 +262,6 @@ if document.readyState isnt 'loading'
 else
   document.addEventListener 'DOMContentLoaded', -> init_svg()
 
-window.pygal =
-  init: init
-  init_svg: init_svg
+window.pygal = window.pygal or {}
+window.pygal.init = init
+window.pygal.init_svg = init_svg
