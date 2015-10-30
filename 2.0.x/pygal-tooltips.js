@@ -95,24 +95,34 @@
       num = el.id.replace('activate-serie-', '');
       el.addEventListener('mouseenter', (function(num) {
         return function() {
-          var re, _k, _len2, _ref3, _results;
+          var re, _k, _l, _len2, _len3, _ref3, _ref4, _results;
           _ref3 = $('.serie-' + num + ' .reactive', ctx);
-          _results = [];
           for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
             re = _ref3[_k];
-            _results.push(re.classList.add('active'));
+            re.classList.add('active');
+          }
+          _ref4 = $('.serie-' + num + ' .showable', ctx);
+          _results = [];
+          for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+            re = _ref4[_l];
+            _results.push(re.classList.add('shown'));
           }
           return _results;
         };
       })(num));
       el.addEventListener('mouseleave', (function(num) {
         return function() {
-          var re, _k, _len2, _ref3, _results;
+          var re, _k, _l, _len2, _len3, _ref3, _ref4, _results;
           _ref3 = $('.serie-' + num + ' .reactive', ctx);
-          _results = [];
           for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
             re = _ref3[_k];
-            _results.push(re.classList.remove('active'));
+            re.classList.remove('active');
+          }
+          _ref4 = $('.serie-' + num + ' .showable', ctx);
+          _results = [];
+          for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+            re = _ref4[_l];
+            _results.push(re.classList.remove('shown'));
           }
           return _results;
         };

@@ -66,10 +66,14 @@ init = (ctx) ->
     el.addEventListener 'mouseenter', do (num) -> ->
       for re in $('.serie-' + num + ' .reactive', ctx)
         re.classList.add 'active'
+      for re in $('.serie-' + num + ' .showable', ctx)
+        re.classList.add 'shown'
 
     el.addEventListener 'mouseleave', do (num) -> ->
       for re in $('.serie-' + num + ' .reactive', ctx)
         re.classList.remove 'active'
+      for re in $('.serie-' + num + ' .showable', ctx)
+        re.classList.remove 'shown'
 
     el.addEventListener 'click', do (el, num) -> ->
       rect = $('rect', el).one()
